@@ -29,7 +29,7 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
 } from './constant';
 import Big from 'big.js';
-import { SignAndSendTransactionsParams } from '@near-wallet-selector/core/lib/wallet';
+// import { SignAndSendTransactionsParams } from '@near-wallet-selector/core/lib/wallet';
 import { TokenMetadata } from './types';
 import { PoolMode } from './v1-swap/swap';
 import { getSwappedAmount } from './stable-swap';
@@ -265,32 +265,32 @@ export const transformTransactions = (
   return parsedTransactions;
 };
 
-export const WalletSelectorTransactions = (
-  transactions: Transaction[],
-  AccountId: string
-) => {
-  const parsedTransactions = transactions.map((t: Transaction) => {
-    return {
-      signerId: AccountId,
-      receiverId: t.receiverId,
-      actions: t.functionCalls.map(fc => {
-        return {
-          type: 'FunctionCall',
-          params: {
-            methodName: fc.methodName,
-            args: fc.args || {},
-            gas: getGas(fc.gas)
-              .toNumber()
-              .toFixed(),
-            deposit: utils.format.parseNearAmount(fc.amount || '0')!,
-          },
-        };
-      }),
-    };
-  });
+// export const WalletSelectorTransactions = (
+//   transactions: Transaction[],
+//   AccountId: string
+// ) => {
+//   const parsedTransactions = transactions.map((t: Transaction) => {
+//     return {
+//       signerId: AccountId,
+//       receiverId: t.receiverId,
+//       actions: t.functionCalls.map(fc => {
+//         return {
+//           type: 'FunctionCall',
+//           params: {
+//             methodName: fc.methodName,
+//             args: fc.args || {},
+//             gas: getGas(fc.gas)
+//               .toNumber()
+//               .toFixed(),
+//             deposit: utils.format.parseNearAmount(fc.amount || '0')!,
+//           },
+//         };
+//       }),
+//     };
+//   });
 
-  return { transactions: parsedTransactions } as SignAndSendTransactionsParams;
-};
+//   return { transactions: parsedTransactions } as SignAndSendTransactionsParams;
+// };
 
 export const separateRoutes = (
   actions: EstimateSwapView[],
