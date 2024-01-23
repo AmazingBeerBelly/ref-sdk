@@ -138,7 +138,7 @@ export const getSignedTransactionsByMemoryKey = async ({
       AccountId,
       utils.PublicKey.from(publicKey.toString()),
       transactions[i].receiverId,
-      accessKey.nonce.add(i).add(1),
+      accessKey.nonce.add(new BN(i)).add(new BN(1)),
       transaction.actions.map(action => {
         const { methodName, args, gas, deposit } = action.params;
         return nearTransactions.functionCall(
