@@ -2,7 +2,7 @@
 
 This SDK is designed to assist developers when interacting with the main functions of the protocol. Main functions that can be defined as:
 
-- Trade: Swap tokens with our Automated Market Maker (AMM)
+- Trade: Swap tokens with our Automated Market Maker (AMM).
 - Pool: Add/Remove liquidity and earn revenue from swap fee (Coming soon)
 - Farm: Stale LP tokens into farms and earn liquidity incentives (Coming soon)
 - Boost Farm: Stake LOVE tokens to get boosted liquidity incentives (Coming soon)
@@ -21,9 +21,11 @@ Ref SDK identifies env variable NEAR_ENV or REACT_APP_REF_SDK_ENV to get global 
 
 ```plain
 export function getConfig(
-  env: string | undefined = process.env.NEAR_ENV ||
+  env: string | undefined = ENV ||
+    process.env.NEAR_ENV ||
     process.env.REACT_APP_REF_SDK_ENV
 ) {
+  ENV = env;
   switch (env) {
     case 'mainnet':
       return {
@@ -35,7 +37,7 @@ export function getConfig(
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
         indexerUrl: 'https://indexer.ref.finance',
         explorerUrl: 'https://testnet.nearblocks.io',
-        REF_DCL_SWAP_CONTRACT_ID: '',
+        REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-labs.near',
       };
     case 'testnet':
       return {
@@ -47,7 +49,7 @@ export function getConfig(
         REF_FI_CONTRACT_ID: 'ref-finance-101.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         explorerUrl: 'https://testnet.nearblocks.io',
-        REF_DCL_SWAP_CONTRACT_ID: 'dcl.ref-dev.testnet',
+        REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-dev.testnet',
       };
     default:
       return {
@@ -59,7 +61,7 @@ export function getConfig(
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
         indexerUrl: 'https://indexer.ref.finance',
         explorerUrl: 'https://nearblocks.io',
-        REF_DCL_SWAP_CONTRACT_ID: '',
+        REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-labs.near',
       };
   }
 }
@@ -68,13 +70,15 @@ export function getConfig(
 
 
 
-Also, the SDK provides `init_env`  to switch application environment. We'd better call it at the entrance of the application, then the entire application environment switch takes effect. If you're not sure where to call,  you can call in more than one place.
+Also, the SDK provides `init_env`  to switch application environment. there is an optional parameter indexerUrl that you can use to replace the one in the SDK with your own deployed indexer service. We'd better call it at the entrance of the application, then the entire application environment switch takes effect. If you're not sure where to call,  you can call in more than one place.
 
 Example
 
 ```
 init_env('testnet');
 init_env('mainnet');
+init_env('testnet', 'https://xx-xx.xx-xxx.com');
+init_env('mainnet', 'https://xx-xx.xx-xxx.com');
 ```
 
 
@@ -1271,6 +1275,11 @@ interface DCLSwapProps {
     pool_id: string;
     output_amount: string;
   };
+  SwapByStopPoint?: {
+    pool_id: string;
+    stop_point: number;
+    skip_unwrap_near: boolean;
+  };
   AccountId: string;
 }
 ```
@@ -1427,6 +1436,61 @@ Response (LimitOrderWithSwap)
           receiver_id: "dcl.ref-dev.testnet",
           amount: "1000000",
           msg: '{"LimitOrderWithSwap":{"pool_id":"usdt.fakes.testnet|wrap.testnet|2000","buy_token":"wrap.testnet","point":495240}}',
+        },
+        gas: "180000000000000",
+        amount: "0.000000000000000000000001",
+      },
+    ],
+  },
+];
+
+```
+
+Example (SwapByStopPoint)
+
+```plain
+const tokenA = "usdt.fakes.testnet";
+
+const tokenB = "wrap.testnet";
+
+const fee = 2000
+
+const pool_ids = [getDCLPoolId(tokenA, tokenB, fee)];
+
+
+const tokenAMetadata = await ftGetTokenMetadata(tokenA)
+
+const tokenBMetadata = await ftGetTokenMetadata(tokenB)
+
+
+const res = await DCLSwap({
+  swapInfo: {
+    amountA: input_amount,
+    tokenA: tokenAMetadata,
+    tokenB: tokenBMetadata,
+  },
+  SwapByStopPoint: {
+      pool_id: pool_id,
+      stop_point: 405920,
+   },
+  AccountId,
+});
+```
+
+Response (SwapByStopPoint)
+
+```
+
+[
+  {
+    receiverId: "usdt.fakes.testnet",
+    functionCalls: [
+      {
+        methodName: "ft_transfer_call",
+        args: {
+          receiver_id: "dcl.ref-dev.testnet",
+          amount: "1000000",
+          msg: '{"SwapByStopPoint":{"pool_id":"usdt.fakes.testnet|wrap.testnet|2000","stop_point":495240}}',
         },
         gas: "180000000000000",
         amount: "0.000000000000000000000001",
