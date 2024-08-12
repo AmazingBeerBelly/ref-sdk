@@ -73,7 +73,7 @@
     "bn.js": "^5.2.0",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "mathjs": "9.3.0",
+    "mathjs": "^9.3.0",
     "near-api-js": "2.1.4"
   },
   "resolutions": {
